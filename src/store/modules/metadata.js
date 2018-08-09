@@ -22,6 +22,8 @@ export const metadata = {
     popularTags: [],
     loadingPopularTags: false,
     error: Object,
+    errorStatus: String,
+    errorCode: Number,
     categorycards,
   },
   getters: {

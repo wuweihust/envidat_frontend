@@ -138,6 +138,10 @@ export default {
   },
   [LOAD_ALL_TAGS_ERROR](state, reason) {
     state.loadingAllTags = false;
-    state.error = reason;
+    state.error = reason.response.data;
+    state.errorStatus = reason.response.statusText;
+    state.errorCode = reason.response.status;
+
+    console.log("error reason " + JSON.stringify(reason));
   },
 };
