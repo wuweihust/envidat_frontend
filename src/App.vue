@@ -6,6 +6,19 @@
 
     <v-icon v-if="loading" color="warning">autorenew</v-icon-->
 
+    <v-snackbar :value="metadataError !== ''"
+                :color="'error'"
+                :multi-line="true">
+      <h3>An Error occured</h3>
+      Error {{ metadataError }}
+      ErrorStatus {{ metadataErrorStatus }}
+    </v-snackbar>
+
+    <p>
+      Error {{ metadataError }}
+      ErrorStatus {{ metadataErrorStatus }}
+    </p>
+
     <v-content>
       <router-view/>
     </v-content>
@@ -20,6 +33,7 @@
     LOAD_ALL_METADATA,
     LOAD_ALL_TAGS,
     LOAD_METADATA_CONTENT_BY_ID,
+    CLEAR_ERROR_CODE,
   } from './store/metadataMutationsConsts';
   import {
     ADD_CARD_IMAGES,
@@ -48,6 +62,12 @@
       //   console.log("value " + element);
       // });
     },
+    // updated: function updated() {
+    //   if (this.showNoConncetionError){
+
+    //     this.tempErrorMsg
+    //   }
+    // },
     methods: {
       loadAllMetadata: function loadAllMetadata() {
         if (!this.loadingMetadatasContent && this.metadatasContentSize <= 0) {
@@ -104,7 +124,23 @@
         popularTags: 'metadata/popularTags',
         loadingPopularTags: 'metadata/loadingPopularTags',
         appBGImage: 'appBGImage',
+        metadataError: 'metadata/error',
+        metadataErrorStatus: 'metadata/errorStatus',
       }),
+      showNoConncetionError: function showNoConncetionError(){
+        
+        if (this.metadataError != '') {
+          this.tempErrorMsg = this.metadataError;
+          this.tempErrorStatus = this.metadataErrorStatus;
+
+          // this.$store.commit(`metadata/${CLEAR_ERROR_CODE}`);
+        } else {
+          this.tempErrorMsg = '';
+          this.tempErrorStatus = '';
+        }
+
+        return this.tempErrorMsg != '';
+      },
       metadatasContentSize: function metadatasContentSize() {
         return this.metadatasContent !== undefined ? Object.keys(this.metadatasContent).length : 0;
       },
@@ -128,6 +164,8 @@
     },
     data: () => ({
       appBGImages: {},
+      tempErrorMsg: '',
+      tempErrorStatus: '',
     }),
     props: {
       source: String,

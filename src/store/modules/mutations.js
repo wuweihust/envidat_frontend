@@ -20,7 +20,17 @@ import {
   LOAD_ALL_TAGS,
   LOAD_ALL_TAGS_SUCCESS,
   LOAD_ALL_TAGS_ERROR,
+  CLEAR_ERROR_CODE,
 } from '../metadataMutationsConsts';
+
+function UpdateErrorInfos(state, reason) {
+  if (reason.response) {
+    state.error = reason.response.statusText;
+    state.errorCode = reason.response.status;
+  } else {
+    state.error = reason.message;
+  }
+}
 
 export default {
   [LOAD_ALL_METADATA](state) {
@@ -40,7 +50,7 @@ export default {
     state.loadingMetadatasContent = false;
     state.metadatasContentOK = false;
     state.metadataIdsOK = false;
-    state.error = reason;
+    UpdateErrorInfos(state, reason);
   },
   [LOAD_METADATA_IDS](state) {
     state.loadingMetadataIds = true;
@@ -54,7 +64,7 @@ export default {
   [LOAD_METADATA_IDS_ERROR](state, reason) {
     state.loadingMetadataIds = false;
     state.metadataIdsOK = false;
-    state.error = reason;
+    UpdateErrorInfos(state, reason);
   },
   [LOAD_METADATAS_CONTENT](state) {
     state.loadingMetadatasContent = true;
@@ -67,7 +77,7 @@ export default {
   [LOAD_METADATAS_CONTENT_ERROR](state, reason) {
     state.loadingMetadatasContent = false;
     state.metadatasContentOK = false;
-    state.error = reason;
+    UpdateErrorInfos(state, reason);
   },
   [SEARCH_METADATA](state) {
     state.searchingMetadatasContent = true;
@@ -138,10 +148,10 @@ export default {
   },
   [LOAD_ALL_TAGS_ERROR](state, reason) {
     state.loadingAllTags = false;
-    state.error = reason.response.data;
-    state.errorStatus = reason.response.statusText;
-    state.errorCode = reason.response.status;
-
-    console.log("error reason " + JSON.stringify(reason));
+    UpdateErrorInfos(state, reason);
+  },
+  [CLEAR_ERROR_CODE](state) {
+    state.error = '';
+    state.errorCode = '';
   },
 };

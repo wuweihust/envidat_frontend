@@ -57,15 +57,30 @@ export default {
   async [LOAD_ALL_METADATA]({ commit }) {
     commit(LOAD_ALL_METADATA);
 
-    let metadataIds = this.getters['metadata/metadataIds'];
+    let metadataIds = [];// this.getters['metadata/metadataIds'];
+    // console.log('metadataIds ' + metadataIds);
 
     if (metadataIds === undefined || metadataIds.length <= 0) {
-      const response = await loadMetadataIdsPromise();
+      // const response = await loadMetadataIdsPromise();
 
-      if (response.data.result !== undefined) {
-        commit(LOAD_METADATA_IDS_SUCCESS, response.data.result);
+      axios.get(`${API_BASE}package_list`).then((response) => {
+        commit(LOAD_ALL_METADATA_SUCCESS, response.data.result);
+        // reassign because it's set by the success mutation
         metadataIds = this.getters['metadata/metadataIds'];
-      }
+      }).catch((reason) => {
+        commit(LOAD_ALL_METADATA_ERROR, reason);
+
+        const errorCode = this.getters['metadata/errorCode'];
+        // console.log('error reason ' + errorCode);
+      });
+
+
+      // if (response.data.result !== undefined) {
+      //   commit(LOAD_METADATA_IDS_SUCCESS, response.data.result);
+      //   metadataIds = this.getters['metadata/metadataIds'];
+      // } else if (response.error !== undefined) {
+      //   commit(LOAD_METADATA_IDS_ERROR, response.error);
+      // }
     }
 
     const calls = loadMetadataContentPromises(commit, metadataIds);
