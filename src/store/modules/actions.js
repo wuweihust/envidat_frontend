@@ -68,12 +68,12 @@ export default {
         // reassign because it's set by the success mutation
         metadataIds = this.getters['metadata/metadataIds'];
       }).catch((reason) => {
-        commit(LOAD_ALL_METADATA_ERROR, reason);
+        // commit(LOAD_ALL_METADATA_ERROR, reason);
+        console.log('LOAD_ALL_METADATA reason ' + reason);
+        throw reason;
 
-        const errorCode = this.getters['metadata/errorCode'];
-        // console.log('error reason ' + errorCode);
+        // const errorCode = this.getters['metadata/errorCode'];
       });
-
 
       // if (response.data.result !== undefined) {
       //   commit(LOAD_METADATA_IDS_SUCCESS, response.data.result);
@@ -88,7 +88,9 @@ export default {
     axios.all(calls).then((response) => {
       commit(LOAD_ALL_METADATA_SUCCESS);
     }).catch((reason) => {
-      commit(LOAD_ALL_METADATA_ERROR, reason);
+      // commit(LOAD_ALL_METADATA_ERROR, reason);
+      console.log(' reason ' + reason);
+      throw reason;
     });
   },
   async [SEARCH_METADATA]({ commit }, searchTerm) {

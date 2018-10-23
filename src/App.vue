@@ -2,26 +2,19 @@
   <v-app id="inspire"
         v-bind:style="dynamicBackground">
 
-    <!--v-btn fab top left color="success" @click="testStore" >Test</v-btn>
-
-    <v-icon v-if="loading" color="warning">autorenew</v-icon-->
-
-    <v-snackbar :value="metadataError !== ''"
-                :color="'error'"
-                :multi-line="true">
-      <h3>An Error occured</h3>
-      Error {{ metadataError }}
-      ErrorStatus {{ metadataErrorStatus }}
-    </v-snackbar>
-
-    <p>
-      Error {{ metadataError }}
-      ErrorStatus {{ metadataErrorStatus }}
-    </p>
-
-    <v-content>
+    <v-content v-if="!metadataError">
       <router-view/>
     </v-content>
+
+    <error-view v-if="metadataError !== ''"
+                v-bind="dynamicErrorBinding"
+                 >
+    </error-view>
+
+    <!-- <p>
+      Error {{ metadataError }}
+      ErrorStatus {{ metadataErrorStatus }}
+    </p> -->
         
   </v-app>
 </template>
@@ -39,9 +32,19 @@
     ADD_CARD_IMAGES,
     ADD_ICON_IMAGE,
   } from './store/mutationsConsts';
+  import ErrorView from './components/Views/ErrorView';
 
   export default {
+    props: {
+      source: String,
+    },
+    beforeCreate() {
+      // window.onoffline = this.setOffline;
+      // window.ononline = this.setOnline;
+      // window.onerror += this.generalErrorHandling;
+    },
     created: function created() {
+
       const metadataId = this.$route.params.metadataid;
 
       if (metadataId && !this.loadingCurrentMetadataContent) {
@@ -61,6 +64,10 @@
       // values.forEach(element => {
       //   console.log("value " + element);
       // });
+
+    },
+    mounted: function mounted() {
+      console.log("mounted " + this.$route.path);
     },
     // updated: function updated() {
     //   if (this.showNoConncetionError){
@@ -69,9 +76,23 @@
     //   }
     // },
     methods: {
+      setOnline: function setOnline() {
+        this.isOnline = true;
+      },
+      setOffline: function setOffline() {
+        this.isOnline = false;
+      },
+      generalErrorHandling: function generalErrorHandling(msg, src, lineNo, colNo, error) {
+        console.log('generalErrorHandling ' + msg + ' ' + src);
+      },
       loadAllMetadata: function loadAllMetadata() {
-        if (!this.loadingMetadatasContent && this.metadatasContentSize <= 0) {
-          this.$store.dispatch(`metadata/${LOAD_ALL_METADATA}`);
+        try {
+          if (!this.loadingMetadatasContent && this.metadatasContentSize <= 0) {
+            this.$store.dispatch(`metadata/${LOAD_ALL_METADATA}`);
+          }
+        } catch(e){
+          console.log('caugth e ' + e);
+          throw e;
         }
       },
       loadAllTags: function loadAllTags() {
@@ -110,6 +131,18 @@
           this.$store.commit(ADD_ICON_IMAGE, { key, value: images[key] });
         });
       },
+      reloadCallback: function reloadCallback() {
+        console.log("reload current path: " + this.$route.path );
+        // this.$router.replace(this.$route.path);
+        this.$router.push(this.$route.path);
+      },
+      backNavigationCallback: function backNavigationCallback() {
+        console.log("do go Back stuff");
+      },
+      reportCallback: function reportCallback() {
+        console.log("do report stuff");
+        
+      },
     },
     computed: {
       ...mapGetters({
@@ -125,21 +158,89 @@
         loadingPopularTags: 'metadata/loadingPopularTags',
         appBGImage: 'appBGImage',
         metadataError: 'metadata/error',
-        metadataErrorStatus: 'metadata/errorStatus',
+        metadataErrorCode: 'metadata/errorCode',
       }),
       showNoConncetionError: function showNoConncetionError(){
         
         if (this.metadataError != '') {
           this.tempErrorMsg = this.metadataError;
-          this.tempErrorStatus = this.metadataErrorStatus;
+          this.tempErrorCode = this.metadataErrorCode;
 
           // this.$store.commit(`metadata/${CLEAR_ERROR_CODE}`);
         } else {
           this.tempErrorMsg = '';
-          this.tempErrorStatus = '';
+          this.tempErrorCode = '';
         }
 
         return this.tempErrorMsg != '';
+      },
+      dynamicErrorBinding: function dynamicErrorBinding() {
+        const binding = { showButton: false, errorText: '', hintText: '',
+                          buttonText: '', buttonCallback: () => {},
+                          showReportButton: false,
+                          reportButtonText: '' };
+
+        if (this.metadataError) {
+          binding.errorText = this.metadataErrorCode + " " + this.metadataError;
+
+          // console.log("errorText " + binding.errorText + " onLine " + window.navigator.onLine);
+          if (this.metadataErrorCode == 500) {
+            // no connection vs. server error?
+
+            if (window.navigator.onLine){
+              binding.hintText = 'There seems to be an error in the EnviDat Backend.';
+
+              // binding.showButton = true;
+              // binding.buttonText = 'Report Error';
+              // binding.buttonCallback = this.reportCallback;
+              binding.showReportButton = true;
+              binding.reportButtonText = 'Report Error to EnviDat';
+            } else {
+              binding.hintText = 'Try to reconncet to the internet.';
+              // binding.hintText = 'There is an issue on the server.';
+              // reportErrorText: 'Report the issue to the EnviDat team.'
+
+              binding.showButton = true;
+              binding.buttonText = 'Reload';
+              binding.buttonCallback = this.reloadCallback;
+            }
+
+          } else if (this.metadataErrorCode == 400) {
+            // bad request
+
+            binding.hintText = "Uuups somethings with the request to EnviDat went wrong, please report this error.";
+
+            binding.showReportButton = true;
+            binding.reportButtonText = 'Report Error to EnviDat';
+
+          } else if (this.metadataErrorCode == 401 && this.metadataErrorCode == 403) {
+            // 401 Unauthorized
+            // 403 Forbidden
+            binding.hintText = "You don't have the rights needed to access this page";
+            binding.showButton = true;
+            binding.buttonText = 'Go Back';
+            binding.buttonCallback = this.backNavigationCallback;
+
+          } else if (this.metadataErrorCode == 404) {
+            // not found
+            binding.hintText = 'Uuups you landed on a removed page.';
+
+            binding.showButton = true;
+            binding.buttonText = 'Go Back';
+            binding.buttonCallback = this.backNavigationCallback;
+
+          } else if (this.metadataErrorCode > 404 && this.metadataErrorCode < 500) {
+            // others
+            binding.hintText = "Uuups somethings went wrong in the Frontend of EnviDat, please report this error.";
+
+            binding.showReportButton = true;
+            binding.reportButtonText = 'Report Error to EnviDat';
+          }
+
+        }
+
+        // console.log(JSON.stringify(binding));
+        return binding;
       },
       metadatasContentSize: function metadatasContentSize() {
         return this.metadatasContent !== undefined ? Object.keys(this.metadatasContent).length : 0;
@@ -165,11 +266,12 @@
     data: () => ({
       appBGImages: {},
       tempErrorMsg: '',
-      tempErrorStatus: '',
+      tempErrorCode: '',
+      isOnline: false,
     }),
-    props: {
-      source: String,
-    },
+    components: {
+      ErrorView,      
+    }
   };
 </script>
 

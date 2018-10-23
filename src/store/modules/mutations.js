@@ -24,6 +24,8 @@ import {
 } from '../metadataMutationsConsts';
 
 function UpdateErrorInfos(state, reason) {
+  console.log("UpdateErrorInfos error " + reason );
+
   if (reason.response) {
     state.error = reason.response.statusText;
     state.errorCode = reason.response.status;

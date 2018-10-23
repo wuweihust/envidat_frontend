@@ -23,6 +23,22 @@ Vue.use(Vuetify, {
 });
 
 Vue.config.productionTip = false;
+Vue.config.error = function vueErrorHandling(error, vm, info) {
+  /* eslint-disable no-param-reassign */
+  console.log('vueErrorHandling ' + error + ' info ' + info);
+  vm.store.error = error;
+  vm.store.errorInfo = info;
+};
+
+window.onerror = function generalErrorHandling(msg, src, lineNo, colNo, error) {
+  console.log('generalErrorHandling ' + error + ' msg ' + msg);
+};
+
+// console.log('window.onerror '+ window.onerror);
+
+// window.onoffline = this.setOffline;
+// window.ononline = this.setOnline;
+
 
 Vue.mixin(globalMethods);
 
