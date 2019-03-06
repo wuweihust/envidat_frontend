@@ -22,6 +22,7 @@ export default new Vuex.Store({
     aboutText,
     controls: [],
     browseScrollPosition: 0,
+    webpSupported: false,
   },
   getters: {
     currentPage: state => state.currentPage,
@@ -31,6 +32,7 @@ export default new Vuex.Store({
     aboutText: state => state.aboutText,
     controls: state => state.controls,
     browseScrollPosition: state => state.browseScrollPosition,
+    webpSupported: state => state.webpSupported,
   },
   mutations,
   modules: {

@@ -9,11 +9,14 @@
     "start": "npm run dev",
     "test": "npm run unit",
     "lint": "eslint --ext .js,.vue src test/unit/specs",
-    "build": "node build/build.js && node build/imagemin.js",
+    "build": "node build/build.js",
+    "build-all": "node build/imagemin-webp.js && node build/build.js",
+    "imagemin-webp": "node build/imagemin-webp.js",
     "imagemin": "node build/imagemin.js"
   },
   "dependencies": {
     "babel-polyfill": "^6.26.0",
+    "imagemin-webp": "^5.0.0",
     "leaflet": "^1.4.0",
     "leaflet.gridlayer.googlemutant": "^0.7.0",
     "m-markdown-preview": "^1.0.0",

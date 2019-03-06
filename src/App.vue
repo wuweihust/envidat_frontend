@@ -67,7 +67,7 @@
     created: function created() {
       this.loadAllMetadata();
 
-      const bgImgs = require.context('./assets/', false, /\.jpg$/);
+      const bgImgs = require.context('./assets/', false, /\.(jpg|webp)$/);
       this.appBGImages = this.importImages(bgImgs, 'app_b');
 
       this.importCardBackgrounds();
@@ -142,9 +142,12 @@
         return this.metadatasContent !== undefined ? Object.keys(this.metadatasContent).length : 0;
       },
       dynamicBackground: function dynamicBackground() {
-        const imageKey = this.appBGImage;
+        let imageKey = this.appBGImage;
+        if (this.$store.state.webpSupported) {
+          imageKey = this.appBGImage.replace('jpg', 'webp');
+        }
+
         const bgImg = this.appBGImages[imageKey];
-        // console.log(imageKey + " bgImg " + bgImg);
         let bgStyle = '';
 
         if (bgImg) {

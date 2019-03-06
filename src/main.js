@@ -24,6 +24,15 @@ Vue.use(Vuetify, {
   },
 });
 
+window.Modernizr.on('webp', (result) => {
+  if (result) {
+    store.state.webpSupported = true;
+  } else {
+    store.state.webpSupported = false;
+  }
+});
+
+
 Vue.config.productionTip = false;
 
 Vue.mixin(globalMethods);
