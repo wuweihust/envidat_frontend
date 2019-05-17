@@ -67,49 +67,33 @@
 
     </v-img>
 
-    <v-card-text :class="{['cardText'] : $vuetify.breakpoint.mdAndUp,
+    <v-card-text class="pr-5"
+                  :class="{['cardText'] : $vuetify.breakpoint.mdAndUp,
                           ['compactText'] : flatLayout || $vuetify.breakpoint.smAndDown,
                           ['py-2'] : flatLayout,
-                          ['pr-5'] : flatLayout,
-                          ['pb-4'] : !flatLayout,
                         }"
     >
+                          <!-- ['pb-4'] : !flatLayout, -->
+
       <!-- TODO: need to strip the markdown characters from the desc -->
       {{ truncatedSubtitle }}
     </v-card-text>
 
+    <v-layout column class="ma-0 pa-2"
+              style="position: absolute; bottom: 0px; right: 0px;">
 
-    <v-card-actions class="ma-0 pa-2"
-                    style="position: absolute; bottom: 5px; right: 5px;">
-      
-      <v-spacer></v-spacer>
+      <v-flex v-if="geoJSONIcon">
+        <base-icon-count-view :iconString="geoJSONIcon" />
+      </v-flex>
 
-      <v-tooltip v-if="isRestricted"
-                bottom 
-                :disabled="$vuetify.breakpoint.xsOnly"
-                >
-                
-        <v-icon slot="activator" color="black" >lock</v-icon>
-          <div v-if="userHasAccess"
-                class="iconCentering">
-            <img class="envidatIcon" :src="unlockedIconString" />          
-            <span>The data of this entry is only accessible with permission.</span>
-          </div>
+      <v-flex>
+        <base-icon-count-view :count="resourceAmount"
+                              :iconString="fileIconString"
+                              :tooltip="`Metadata with ${resourceAmount} resources`"
+                              />
+      </v-flex>
 
-          <div v-if="userHasAccess"
-                class="iconCentering">
-            <img class="envidatIcon" :src="lockedIconString" />          
-            <span>The data of this entry is only accessible with permission.</span>
-          </div>
-
-      </v-tooltip>
-
-      <base-icon-count-view :count="resourceAmount"
-                            :iconString="fileIconString"
-                            :tooltip="`Metadata with ${resourceAmount} resources`"
-                            />
-
-    </v-card-actions>
+    </v-layout>
 
   </v-card>
 
@@ -155,6 +139,7 @@ export default {
     fileIconString: String,
     lockedIconString: String,
     unlockedIconString: String,
+    geoJSONIcon: String,
   },
   components: {
     TagChip,
