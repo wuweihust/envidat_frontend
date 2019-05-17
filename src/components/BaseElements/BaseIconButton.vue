@@ -1,10 +1,11 @@
 <template>
   <div @mouseover="hoverBadge = true" @mouseleave="hoverBadge = false"
       @click.stop="clicked"
+      style="pointer: cursor;"
       :style="isSmall ? 'height: 28px;' : 'height: 36px;'"
   >
     <v-tooltip v-bind="{ top: !toolTipBottom, bottom: toolTipBottom }" 
-                :disabled="$vuetify.breakpoint.xsOnly"
+                :disabled="$vuetify.breakpoint.xsOnly || !toolTipText"
                 >
 
       <v-btn :icon="!isElevated"
@@ -37,9 +38,10 @@
     </v-tooltip>
 
     <div v-if="count > 0"
-          style="position: relative; right: -7px; top: -25px;">
+          style="position: relative; right: -7px; top: -25px; pointer: cursor;">
 
-      <v-badge :style="(hoverBadge && $vuetify.breakpoint.smAndUp) || $vuetify.breakpoint.xsOnly ? 'right: 5px;' : ''"
+      <v-badge style="pointer: cursor;"
+              :style="(hoverBadge && $vuetify.breakpoint.smAndUp) || $vuetify.breakpoint.xsOnly ? 'right: 5px;' : ''"
               overlap
               color="highlight"
               :class="{ envidatBadgeBigNumber : count > 9,

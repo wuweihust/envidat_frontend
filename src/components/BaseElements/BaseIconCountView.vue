@@ -1,12 +1,13 @@
 <template>
       <v-tooltip bottom
-                :disabled="$vuetify.breakpoint.xsOnly"
+                :disabled="$vuetify.breakpoint.xsOnly || !tooltip"
                 >
         
           <div slot="activator" class="metadataInfoIcon">
             <v-layout row @mouseover="hoverBadge = true" @mouseleave="hoverBadge = false">
 
-              <v-flex pa-0>
+              <v-flex v-if="count > 0"
+                      pa-0>
                 <v-badge v-bind="{ left: !hoverBadge }"
                         overlap
                         color="secondary"

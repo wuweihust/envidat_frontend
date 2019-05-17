@@ -7,7 +7,7 @@
         style="position: relative: top: 2px;"
         >
         <v-tooltip bottom
-                    :disabled="$vuetify.breakpoint.xsOnly"
+                    :disabled="$vuetify.breakpoint.xsOnly || !iconTooltip"
                     >
 
           <div slot="activator" class="iconCentering">

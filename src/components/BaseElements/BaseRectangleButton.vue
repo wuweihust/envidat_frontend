@@ -1,6 +1,6 @@
 <template>
     <v-tooltip bottom 
-                :disabled="$vuetify.breakpoint.xsOnly"
+                :disabled="$vuetify.breakpoint.xsOnly || !toolTipText"
                 >
 
       <v-btn :small="isSmall"
