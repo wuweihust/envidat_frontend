@@ -8,88 +8,102 @@
     <v-card-title>
       <div class="headline mb-0">Cartographic Filtering</div>
     </v-card-title>
+
+    <v-layout row wrap>
+
+      <v-flex x12>
+        <div :style="`background-color: ${this.$vuetify.theme.highlight};`">
+          <p class="px-3 py-0 my-0 body-2" > {{ highlightedText }} </p>
+        </div>
+      </v-flex>
+
+      <v-flex xs9 sm8>
+        <div class="px-3 py-1 my-0"
+            :style="`color:${this.pinnedIds.length > 0 ? this.$vuetify.theme.primary : 'rgba(0,0,0,.47)'};`" >
+          {{ this.filterText + this.pinnedIds.length }}
+        </div>
+      </v-flex>
+
+      <v-flex xs3 sm4 class="noMarginButton">
+        <base-rectangle-button :buttonText="clearButtonText"
+                              toolTipText="Clear all pinned Metadata"
+                              :isSmall="true"
+                              :isFlat="true"
+                              iconColor="red"
+                              :disabled="this.pinnedIds.length <= 0"
+                              materialIconName="close"
+                              v-on:clicked="catchClearButtonClicked"
+                              />
+      </v-flex>
+
+      <v-flex xs12 py-1>
+        <div v-if="expanded && !errorLoadingLeaflet"
+              id="map"
+              ref="map"
+              v-bind="mapViewHeight" />
+
+        <div v-if="expanded && errorLoadingLeaflet"
+              v-bind="mapViewHeight" >
+              Error loading leaflet
+        </div>
+      </v-flex>
+
     
-    <div class="mb-2" :style="`background-color: ${this.$vuetify.theme.highlight};`">
-      <p class="px-3 py-0 my-0 body-2" > {{ highlightedText }} </p>
-    </div>
+    <!-- <v-card-actions class="pr-2">
 
-    <div v-if="expanded && !errorLoadingLeaflet"
-          id="map"
-          ref="map"
-          v-bind="mapViewHeight" />
+      <v-spacer /> -->
 
-    <div v-if="expanded && errorLoadingLeaflet"
-          v-bind="mapViewHeight" >
-          Error loading leaflet
-    </div>
+      <v-flex xs1 sm2>
+        <base-icon-button class="px-2"
+                          :customIcon="eyeIcon"
+                          color="highlight"
+                          :outlined="true"
+                          toolTipText="Focus on all elements on the map"
+                          v-on:clicked="focusOnLayers()"
+                          />
+      </v-flex>
 
-    <v-card-actions class="pr-2">
-      <div :style="`color:${this.pinnedIds.length > 0 ? this.$vuetify.theme.primary : 'rgba(0,0,0,.47)'};`" >{{ this.filterText + this.pinnedIds.length }}</div>
+      <v-flex xs1 sm2>
+        <base-icon-button class="px-2"
+                          v-if="hasPins"
+                          :count="pinLayerGroup.length"
+                          :customIcon="pinIcon"
+                          color="secondary"
+                          :outlined="true"
+                          :isToggled="pinEnabled"
+                          :toolTipText="pinEnabled ? 'Hide single markers' : 'Show single markers'"
+                          v-on:clicked="pinEnabled = !pinEnabled; updatePins()"
+                          />
+      </v-flex>
 
-      <v-spacer />
+      <v-flex xs1 sm2>
+        <base-icon-button class="px-2"
+                          v-if="hasMultiPins"
+                          :count="multiPinLayerGroup.length"
+                          :customIcon="multiPinIcon"
+                          color="secondary"
+                          :outlined="true"
+                          :isToggled="multiPinEnabled"
+                          :toolTipText="multiPinEnabled ? 'Hide multi markers' : 'Show multi markers'"
+                          v-on:clicked="multiPinEnabled = !multiPinEnabled; updateMultiPins()"
+                          />
+      </v-flex>
 
-      <base-icon-button class="px-2"
-                        :customIcon="eyeIcon"
-                        color="highlight"
-                        :outlined="true"
-                        toolTipText="Focus on all elements on the map"
-                        v-on:clicked="focusOnLayers()"
-                        />
+      <v-flex xs1 sm2>
+        <base-icon-button class="px-2"
+                          v-if="hasPolygons"
+                          :count="polygonLayerGroup.length"
+                          :customIcon="polygonIcon"
+                          color="secondary"
+                          :isToggled="polygonEnabled"
+                          :outlined="true"
+                          :toolTipText="polygonEnabled ? 'Hide polygons' : 'Show polygons'"
+                          v-on:clicked="polygonEnabled = !polygonEnabled; updatePolygons()"
+                          />
 
-      <base-icon-button class="px-2"
-                        v-if="hasPins"
-                        :count="pinLayerGroup.length"
-                        :customIcon="pinIcon"
-                        color="secondary"
-                        :outlined="true"
-                        :isToggled="pinEnabled"
-                        :toolTipText="pinEnabled ? 'Hide single markers' : 'Show single markers'"
-                        v-on:clicked="pinEnabled = !pinEnabled; updatePins()"
-                        />
-
-      <base-icon-button class="px-2"
-                        v-if="hasMultiPins"
-                        :count="multiPinLayerGroup.length"
-                        :customIcon="multiPinIcon"
-                        color="secondary"
-                        :outlined="true"
-                        :isToggled="multiPinEnabled"
-                        :toolTipText="multiPinEnabled ? 'Hide multi markers' : 'Show multi markers'"
-                        v-on:clicked="multiPinEnabled = !multiPinEnabled; updateMultiPins()"
-                        />
-
-      <!-- <base-icon-button class="px-1"
-                    :customIcon="polygonIcon"
-                    :disabled="true"
-                    toolTipText="Polygon filtering is in development"
-                    /> -->
-
-      <base-icon-button class="px-2"
-                        v-if="hasPolygons"
-                        :count="polygonLayerGroup.length"
-                        :customIcon="polygonIcon"
-                        color="secondary"
-                        :isToggled="polygonEnabled"
-                        :outlined="true"
-                        :toolTipText="polygonEnabled ? 'Hide polygons' : 'Show polygons'"
-                        v-on:clicked="polygonEnabled = !polygonEnabled; updatePolygons()"
-                        />
-
-
-      <base-rectangle-button class="pl-3"
-                            :buttonText="clearButtonText"
-                            toolTipText="Clear all pinned Metadata"
-                            :isSmall="true"
-                            :isFlat="true"
-                            iconColor="red"
-                            :disabled="this.pinnedIds.length <= 0"
-                            materialIconName="close"
-                            v-on:clicked="catchClearButtonClicked"
-                            />
-
-
-    </v-card-actions>
-
+    <!-- </v-card-actions> -->
+      </v-flex>
+    </v-layout>
   </v-card>
 
 </template>
@@ -495,7 +509,7 @@ export default {
     mapIsSetup: false,
     setupCenterCoords: [46.943961, 8.199240],
     initialBounds: null,
-    buttonHeight: 135,
+    buttonHeight: 175,
     updatingMap: true,
     addedObjectsKeys: [],
     mapFilteringActive: false,
@@ -530,6 +544,10 @@ export default {
 </script>
 
 <style>
+
+.noMarginButton .v-btn {
+  margin: 0px !important;
+}
 
 .rotating {
   animation: rotateturn 1s steps(8, end) infinite;
