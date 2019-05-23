@@ -46,6 +46,7 @@
                         :fileIconString="fileIconString"
                         :lockedIconString="lockedIconString"
                         :unlockedIconString="unlockedIconString"
+                        :geoJSONIcon="geoJSONIcon(metadatasContent[pinnedId])"
                         v-on:clickedEvent="metaDataClicked"
                         v-on:clickedTag="catchTagClicked"
             />
@@ -73,6 +74,7 @@
                         :fileIconString="fileIconString"
                         :lockedIconString="lockedIconString"
                         :unlockedIconString="unlockedIconString"
+                        :geoJSONIcon="geoJSONIcon(metadata)"
                         v-on:clickedEvent="metaDataClicked"
                         v-on:clickedTag="catchTagClicked"
             />
@@ -119,11 +121,18 @@ export default {
       fileIconString: null,
       lockedIconString: null,
       unlockedIconString: null,
+      pinIcon: null,
+      multiPinIcon: null,
+      polygonIcon: null,
     }),
     beforeMount: function beforeMount() {
+      // loading icon only once before the mount of the component
       this.fileIconString = this.mixinMethods_getIcon('file');
       this.lockedIconString = this.mixinMethods_getIcon('lock2Closed');
       this.unlockedIconString = this.mixinMethods_getIcon('lock2Open');
+      this.pinIcon = this.mixinMethods_getIcon('marker');
+      this.multiPinIcon = this.mixinMethods_getIcon('markerMulti');
+      this.polygonIcon = this.mixinMethods_getIcon('polygons');
     },
     computed: {
       ...mapGetters({
@@ -170,6 +179,24 @@ export default {
 
     },
     methods: {
+      geoJSONIcon: function geoJSONIcon(metadata){
+        // const spatialJSON = JSON.parse(metadata.spatial);
+        const spatialJSON = metadata.spatial;
+
+        if (spatialJSON.type === 'Point'){
+          return this.pinIcon;
+        }
+
+        if (spatialJSON.type === 'MultiPoint'){
+          return this.multiPinIcon;
+        }
+
+        if (spatialJSON.type === 'Polygon'){
+          return this.polygonIcon;
+        }
+
+        return null;
+      },
       contentSize: function contentSize(content) {
         return content !== undefined ? Object.keys(content).length : 0;
       },

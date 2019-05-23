@@ -169,7 +169,12 @@ module.exports = {
       location.geoJSON = dataset.spatial;
 
       // parseJSON because the geoJOSN from CKAN might be invalid!
-      const spatialJSON = JSON.parse(dataset.spatial);
+      let spatialJSON = null;
+      if (typeof (dataset.spatial) === 'string') {
+        spatialJSON = JSON.parse(dataset.spatial);
+      } else {
+        spatialJSON = dataset.spatial;
+      }
 
       if (spatialJSON) {
         location.isPolygon = spatialJSON.type === 'Polygon';

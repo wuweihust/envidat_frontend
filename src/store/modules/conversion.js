@@ -31,7 +31,14 @@ export function solrResultToCKANJSON(solorJSON) {
     ckanStructure.state = dataDict.state;
     ckanStructure.version = dataDict.version;
 
-    ckanStructure.spatial = dataDict.spatial;
+    let spatial = null;
+    try {
+      spatial = JSON.parse(dataDict.spatial);
+    } catch (error) {
+      // console.log("error validated_data_dict " + error);
+    }
+    ckanStructure.spatial = spatial;
+  
     // TODO decode spatial?
     ckanStructure.spatial_info = dataDict.spatial_info;
     ckanStructure.type = dataDict.type;
